@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lists &amp; Conditional Rendering Visualized</title>
+
+  <style>
+    body {
+      font-family: "Noto Sans KR", "Segoe UI", sans-serif;
+      background: #f3f5f8;
+      color: #1f2933;
+      margin: 0;
+      padding: 32px 16px 56px;
+    }
+    .page { max-width: 1100px; margin: 0 auto; }
+    h1.title { margin: 0 0 6px; }
+    .lead { margin: 0 0 24px; color: #52606d; }
+    h2 { margin: 38px 0 12px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #d9dee5;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-head { font-weight: 700; font-size: 0.9rem; padding: 10px 14px; border-bottom: 1px solid #d9dee5; }
+    .panel-head small { font-weight: 400; opacity: 0.85; }
+    .p-code .panel-head   { background: #e3f0ff; color: #0b4a9e; }
+    .p-result .panel-head { background: #e1f5e8; color: #1a7f45; }
+    .p-info .panel-head   { background: #fff2d6; color: #8a5a00; }
+    .p-bad .panel-head    { background: #fde4e1; color: #a12a1c; }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      background: #1f2933;
+      color: #e8edf3;
+      flex: 1;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .rendered { padding: 14px 18px; flex: 1; }
+    .rendered ul { margin: 0; padding-left: 20px; }
+    .rendered li { margin: 4px 0; }
+
+    .info-body { padding: 14px; flex: 1; font-size: 0.9rem; line-height: 1.55; }
+    .info-body p { margin: 0 0 8px; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+    th, td { border: 1px solid #d9dee5; padding: 5px 7px; text-align: left; vertical-align: top; }
+    th { background: #f3f5f8; }
+
+    /* Demo bits */
+    .key-list { list-style: none; padding: 0 !important; }
+    .key-list li { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .key-list .nm { min-width: 120px; font-weight: 600; }
+    .key-list input { flex: 1; min-width: 0; padding: 4px 6px; border: 1px solid #b8c0cc; border-radius: 5px; font: inherit; }
+    .btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .rendered button {
+      background: #1f2933;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font: inherit;
+      cursor: pointer;
+    }
+    .rendered button.secondary { background: #8a9099; }
+    .rendered button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .toggle { display: block; margin-bottom: 12px; font-size: 0.92rem; }
+    .demo-box { border: 2px dashed #9aa5b1; border-radius: 8px; padding: 10px 14px; }
+    .demo-box h1 { font-size: 1.2rem; margin: 0 0 8px; }
+    .admin {
+      background: #e1f5e8;
+      border: 1px solid #1a7f45;
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+    .denied { color: #c0392b; font-weight: 600; margin: 0; }
+    .zero-out { background: #fde4e1; padding: 4px 8px; border-radius: 4px; font-family: Consolas, monospace; display: inline-block; }
+    .label-line { font-size: 0.8rem; color: #52606d; margin: 0 0 6px; }
+
+    .note { color: #52606d; font-size: 0.88rem; margin: 6px 0 0; }
+    .warn {
+      background: #fff4e5;
+      border: 1px solid #f0c27a;
+      border-left: 5px solid #e08a00;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    code {
+      background: #e8edf3;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.88em;
+    }
+  </style>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Lists &amp; Conditional Rendering</h1>
+    <p class="lead">Turn arrays into lists with <code>.map()</code>, and decide what to show with ternaries, <code>&amp;&amp;</code> and early returns.</p>
+
+    <!-- ========== 1. map ========== -->
+    <h2>1. Rendering a list with .map()</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>const courses = [
+  { id: 1, name: 'Web Programming', credits: 3 },
+  { id: 2, name: 'Databases',       credits: 3 },
+  { id: 3, name: 'Algorithms',      credits: 4 },
+];
+
+function CourseList() {
+  return (
+    &lt;ul&gt;
+      {courses.map(course =&gt; (
+        // key: unique and stable, use the id
+        &lt;li key={course.id}&gt;
+          {course.name} — {course.credits} credits
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root1"></div>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">What .map() returns <small>(static)</small></div>
+<pre>// An array of 3 elements:
+[
+  &lt;li key="1"&gt;Web Programming — 3 credits&lt;/li&gt;,
+  &lt;li key="2"&gt;Databases — 3 credits&lt;/li&gt;,
+  &lt;li key="3"&gt;Algorithms — 4 credits&lt;/li&gt;
+]
+
+// React puts that array inside the &lt;ul&gt;</pre>
+      </div>
+    </div>
+    <p class="note">Add a fourth course to the array, refresh the page, and a fourth line appears. You change the data, not the markup.</p>
+
+    <h2>1b. Why the key matters: try it</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">The only difference</div>
+<pre>// Left list
+&lt;li key={index}&gt;   // position
+
+// Right list
+&lt;li key={course.id}&gt; // identity
+
+// How to test:
+// 1. Type a note in each of the
+//    3 boxes (e.g. A, B, C)
+// 2. Click "Remove first"
+// 3. Compare the two lists</pre>
+      </div>
+      <div class="panel p-bad">
+        <div class="panel-head">key = index <small>(live)</small></div>
+        <div class="rendered" id="root1b1"></div>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">key = id <small>(live)</small></div>
+        <div class="rendered" id="root1b2"></div>
+      </div>
+    </div>
+    <div class="warn">
+      <strong>What you should see:</strong> after removing "Web Programming", the <em>index</em> list keeps the note "A" next to "Databases". React matched the boxes by position, so the first box stayed and the note now sits on the wrong course. The <em>id</em> list removes the box that belonged to the removed course, so "A" disappears with it and "B" stays next to "Databases".
+      Index keys are only safe for a list that never reorders, adds or removes items.
+    </div>
+
+    <!-- ========== 2. Conditional ========== -->
+    <h2>2. Conditional rendering: ternary and &amp;&amp;</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>function UserGreeting({ isLoggedIn, username }) {
+  return (
+    &lt;div&gt;
+      {/* 1. Ternary: one of two options */}
+      {isLoggedIn
+        ? &lt;h1&gt;Welcome back, {username}!&lt;/h1&gt;
+        : &lt;h1&gt;Please log in&lt;/h1&gt;
+      }
+
+      {/* 2. &amp;&amp;: only when truthy */}
+      {isLoggedIn &amp;&amp; &lt;button&gt;Log out&lt;/button&gt;}
+    &lt;/div&gt;
+  );
+}</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live, use the checkbox)</small></div>
+        <div class="rendered" id="root2"></div>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">What happens <small>(static)</small></div>
+        <div class="info-body">
+          <table>
+            <tr><th>isLoggedIn</th><th>Ternary shows</th><th>&amp;&amp; shows</th></tr>
+            <tr><td><code>true</code></td><td>Welcome back, Amir!</td><td>Log out button</td></tr>
+            <tr><td><code>false</code></td><td>Please log in</td><td>nothing</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <h2>2b. A trap with &amp;&amp;</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>const items = [];   // empty list
+
+// Looks fine, but...
+{items.length &amp;&amp; &lt;p&gt;You have items&lt;/p&gt;}
+
+// Safe: make it a real true/false
+{items.length &gt; 0 &amp;&amp; &lt;p&gt;You have items&lt;/p&gt;}</pre>
+      </div>
+      <div class="panel p-bad">
+        <div class="panel-head">Without <code>&gt; 0</code> <small>(live)</small></div>
+        <div class="rendered" id="root2b1"></div>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">With <code>&gt; 0</code> <small>(live)</small></div>
+        <div class="rendered" id="root2b2"></div>
+      </div>
+    </div>
+    <p class="note">In JavaScript <code>0 &amp;&amp; anything</code> is <code>0</code>, and React prints the number 0 on the page. <code>false</code>, <code>null</code> and <code>undefined</code> print nothing, but <code>0</code> does.</p>
+
+    <!-- ========== 3. Early return ========== -->
+    <h2>3. Early return</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>function Dashboard({ isAdmin }) {
+  // Handle the "no" case first and stop
+  if (!isAdmin) return &lt;p&gt;Access denied&lt;/p&gt;;
+
+  // Only admins reach this line
+  return &lt;AdminPanel /&gt;;
+}</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live, use the checkbox)</small></div>
+        <div class="rendered" id="root3"></div>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">When to use which <small>(static)</small></div>
+        <div class="info-body">
+          <p><strong>Ternary:</strong> choose between two small pieces of markup.</p>
+          <p><strong><code>&amp;&amp;</code>:</strong> show something or nothing.</p>
+          <p><strong>Early return:</strong> a whole component changes, or you need to guard against missing data.</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">An early return goes <em>outside</em> the JSX, before the main <code>return</code>. It is a normal JavaScript <code>if</code> statement, not something inside <code>{ }</code>.</p>
+  </div>
+
+  <script type="text/babel">
+    // ---------- 1. map ----------
+    const courses = [
+      { id: 1, name: 'Web Programming', credits: 3 },
+      { id: 2, name: 'Databases', credits: 3 },
+      { id: 3, name: 'Algorithms', credits: 4 },
+    ];
+
+    function CourseList() {
+      return (
+        <ul>
+          {courses.map(course => (
+            // key must be unique and stable: use the id, not the index
+            <li key={course.id}>
+              {course.name} — {course.credits} credits
+            </li>
+          ))}
+        </ul>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root1')).render(<CourseList />);
+
+    // ---------- 1b. key demo ----------
+    const initialItems = [
+      { id: 1, name: 'Web Programming' },
+      { id: 2, name: 'Databases' },
+      { id: 3, name: 'Algorithms' },
+    ];
+
+    function KeyDemo({ useIndex }) {
+      const [items, setItems] = React.useState(initialItems);
+      return (
+        <div>
+          <ul className="key-list">
+            {items.map((c, i) => (
+              <li key={useIndex ? i : c.id}>
+                <span className="nm">{c.name}</span>
+                <input placeholder="type a note" />
+              </li>
+            ))}
+          </ul>
+          <div className="btns">
+            <button onClick={() => setItems(items.slice(1))} disabled={items.length === 0}>Remove first</button>
+            <button className="secondary" onClick={() => setItems(initialItems)}>Reset list</button>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root1b1')).render(<KeyDemo useIndex={true} />);
+    ReactDOM.createRoot(document.getElementById('root1b2')).render(<KeyDemo useIndex={false} />);
+
+    // ---------- 2. ternary and && ----------
+    function UserGreeting({ isLoggedIn, username }) {
+      return (
+        <div>
+          {/* 1. Ternary: renders one of two options */}
+          {isLoggedIn
+            ? <h1>Welcome back, {username}!</h1>
+            : <h1>Please log in</h1>
+          }
+
+          {/* 2. &&: renders only when the condition is truthy */}
+          {isLoggedIn && <button>Log out</button>}
+        </div>
+      );
+    }
+
+    function GreetingDemo() {
+      const [isLoggedIn, setIsLoggedIn] = React.useState(true);
+      return (
+        <div>
+          <label className="toggle">
+            <input
+              type="checkbox"
+              checked={isLoggedIn}
+              onChange={e => setIsLoggedIn(e.target.checked)}
+            />{' '}
+            isLoggedIn = <strong>{String(isLoggedIn)}</strong>
+          </label>
+          <div className="demo-box">
+            <UserGreeting isLoggedIn={isLoggedIn} username="Amir" />
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root2')).render(<GreetingDemo />);
+
+    // ---------- 2b. && trap ----------
+    function TrapDemo({ fixed }) {
+      const items = [];
+      return (
+        <div>
+          <p className="label-line">items = [ ] (empty). The page shows:</p>
+          <span className="zero-out">
+            {fixed
+              ? (items.length > 0 && <p>You have items</p>)
+              : (items.length && <p>You have items</p>)}
+          </span>
+          <p className="label-line" style={{ marginTop: 8 }}>
+            {fixed ? 'The box above is empty. Correct.' : 'The box above shows a stray 0. Wrong.'}
+          </p>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root2b1')).render(<TrapDemo fixed={false} />);
+    ReactDOM.createRoot(document.getElementById('root2b2')).render(<TrapDemo fixed={true} />);
+
+    // ---------- 3. early return ----------
+    function AdminPanel() {
+      return <div className="admin">Admin panel: users, grades, courses</div>;
+    }
+
+    function Dashboard({ isAdmin }) {
+      if (!isAdmin) return <p className="denied">Access denied</p>;
+      return <AdminPanel />;
+    }
+
+    function DashboardDemo() {
+      const [isAdmin, setIsAdmin] = React.useState(false);
+      return (
+        <div>
+          <label className="toggle">
+            <input
+              type="checkbox"
+              checked={isAdmin}
+              onChange={e => setIsAdmin(e.target.checked)}
+            />{' '}
+            isAdmin = <strong>{String(isAdmin)}</strong>
+          </label>
+          <div className="demo-box">
+            <Dashboard isAdmin={isAdmin} />
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root3')).render(<DashboardDemo />);
+  </script>
+</body>
+</html>

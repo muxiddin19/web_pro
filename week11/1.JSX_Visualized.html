@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JSX Visualized</title>
+
+  <style>
+    body {
+      font-family: "Noto Sans KR", "Segoe UI", sans-serif;
+      background: #f3f5f8;
+      color: #1f2933;
+      margin: 0;
+      padding: 32px 16px 56px;
+    }
+    .page { max-width: 1100px; margin: 0 auto; }
+    h1.title { margin: 0 0 6px; }
+    .lead { margin: 0 0 28px; color: #52606d; }
+    h2 { margin: 36px 0 12px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+    @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #d9dee5;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-head {
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 10px 14px;
+      border-bottom: 1px solid #d9dee5;
+    }
+    .step1 .panel-head { background: #e3f0ff; color: #0b4a9e; }
+    .step2 .panel-head { background: #fff2d6; color: #8a5a00; }
+    .step3 .panel-head { background: #e1f5e8; color: #1a7f45; }
+    .panel-head small { font-weight: 400; opacity: 0.85; }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      background: #1f2933;
+      color: #e8edf3;
+      flex: 1;
+    }
+    .rendered {
+      padding: 16px 18px;
+      flex: 1;
+    }
+    .rendered h1 { margin: 0 0 8px; font-size: 1.5rem; }
+    .rendered p { margin: 6px 0; }
+    .rendered img { border-radius: 50%; margin-top: 6px; }
+    .rendered .app { border: 2px dashed #9aa5b1; padding: 12px 14px; border-radius: 8px; }
+
+    .arrow { text-align: center; color: #7b8794; font-size: 0.85rem; margin: 8px 0 0; }
+
+    .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .rule {
+      background: #fff;
+      border: 1px solid #d9dee5;
+      border-left: 5px solid #1556b8;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .rule h3 { margin: 0 0 6px; font-size: 1rem; }
+    .rule p { margin: 0; font-size: 0.92rem; }
+    code {
+      background: #e8edf3;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.88em;
+    }
+    .note { color: #52606d; font-size: 0.85rem; margin-top: 8px; }
+  </style>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">JSX Visualized</h1>
+    <p class="lead">You write JSX, Babel compiles it to plain JavaScript, and React draws the result.</p>
+
+    <!-- ========== Example 1 ========== -->
+    <h2>Example 1: one element</h2>
+    <div class="row">
+      <div class="panel step1">
+        <div class="panel-head">1. JSX <small>(what you write)</small></div>
+<pre>const name = 'Amir';
+
+const element =
+  &lt;h1 className="title"&gt;
+    Hello, {name}!
+  &lt;/h1&gt;;</pre>
+      </div>
+
+      <div class="panel step2">
+        <div class="panel-head">2. Compiled <small>(simplified, you never write this)</small></div>
+<pre>const name = 'Amir';
+
+const element =
+  React.createElement(
+    'h1',
+    { className: 'title' },
+    'Hello, ', name, '!'
+  );</pre>
+      </div>
+
+      <div class="panel step3">
+        <div class="panel-head">3. Result <small>(live React output)</small></div>
+        <div class="rendered" id="root1"></div>
+      </div>
+    </div>
+
+    <!-- ========== Example 2 ========== -->
+    <h2>Example 2: a component with several elements</h2>
+    <div class="row">
+      <div class="panel step1">
+        <div class="panel-head">1. JSX <small>(what you write)</small></div>
+<pre>function App() {
+  const user = 'Amir';
+
+  return (
+    &lt;div className="app"&gt;
+      &lt;h1&gt;Welcome, {user}!&lt;/h1&gt;
+      &lt;p&gt;Today: {new Date().toDateString()}&lt;/p&gt;
+      &lt;img src="photo.jpg" alt="Profile" /&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+      </div>
+
+      <div class="panel step2">
+        <div class="panel-head">2. Compiled <small>(simplified)</small></div>
+<pre>function App() {
+  const user = 'Amir';
+
+  return React.createElement(
+    'div', { className: 'app' },
+    React.createElement('h1', null,
+      'Welcome, ', user, '!'),
+    React.createElement('p', null,
+      'Today: ', new Date().toDateString()),
+    React.createElement('img',
+      { src: 'photo.jpg', alt: 'Profile' })
+  );
+}</pre>
+      </div>
+
+      <div class="panel step3">
+        <div class="panel-head">3. Result <small>(live React output)</small></div>
+        <div class="rendered" id="root2"></div>
+      </div>
+    </div>
+    <p class="note">The live image uses a built-in placeholder instead of <code>photo.jpg</code>, because that file does not exist here.</p>
+
+    <!-- ========== Rules ========== -->
+    <h2>JSX rules to remember</h2>
+    <div class="rules">
+      <div class="rule"><h3>className, htmlFor</h3><p>Use <code>className</code> instead of <code>class</code>, and <code>htmlFor</code> instead of <code>for</code>.</p></div>
+      <div class="rule"><h3>Self-close void tags</h3><p>Write <code>&lt;img /&gt;</code>, <code>&lt;input /&gt;</code>, <code>&lt;br /&gt;</code>.</p></div>
+      <div class="rule"><h3>One root element</h3><p>Return a single parent, or wrap siblings in a Fragment <code>&lt;&gt;...&lt;/&gt;</code>.</p></div>
+      <div class="rule"><h3>JS inside { }</h3><p>Any JavaScript expression works: <code>{user}</code>, <code>{new Date().toDateString()}</code>.</p></div>
+      <div class="rule"><h3>Comments in JSX</h3><p>Inside markup use <code>{/* comment */}</code>, not <code>//</code>.</p></div>
+    </div>
+  </div>
+
+  <script type="text/babel">
+    // ---------- Example 1 ----------
+    const name = 'Amir';
+    const element = <h1 className="title">Hello, {name}!</h1>;
+    ReactDOM.createRoot(document.getElementById('root1')).render(element);
+
+    // ---------- Example 2 ----------
+    // Inline placeholder avatar so the image shows without a file
+    const photo =
+      'data:image/svg+xml;utf8,' +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72">' +
+        '<rect width="72" height="72" fill="#9fb8d8"/>' +
+        '<circle cx="36" cy="28" r="13" fill="#fff"/>' +
+        '<rect x="14" y="46" width="44" height="30" rx="14" fill="#fff"/></svg>'
+      );
+
+    function App() {
+      const user = 'Amir';
+
+      return (
+        // Must return ONE root element (or use a <>...</> Fragment)
+        <div className="app">
+          <h1>Welcome, {user}!</h1> {/* JS expressions in {} */}
+          <p>Today: {new Date().toDateString()}</p>
+          <img src={photo} alt="Profile" width="72" height="72" /> {/* self-closed */}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root2')).render(<App />);
+  </script>
+</body>
+</html>

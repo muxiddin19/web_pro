@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Component Composition Visualized</title>
+
+  <style>
+    body {
+      font-family: "Noto Sans KR", "Segoe UI", sans-serif;
+      background: #f3f5f8;
+      color: #1f2933;
+      margin: 0;
+      padding: 32px 16px 56px;
+    }
+    .page { max-width: 1100px; margin: 0 auto; }
+    h1.title { margin: 0 0 6px; }
+    .lead { margin: 0 0 24px; color: #52606d; }
+    h2 { margin: 38px 0 12px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #d9dee5;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-head { font-weight: 700; font-size: 0.9rem; padding: 10px 14px; border-bottom: 1px solid #d9dee5; }
+    .panel-head small { font-weight: 400; opacity: 0.85; }
+    .p-code .panel-head   { background: #e3f0ff; color: #0b4a9e; }
+    .p-result .panel-head { background: #e1f5e8; color: #1a7f45; }
+    .p-info .panel-head   { background: #fff2d6; color: #8a5a00; }
+    .p-bad .panel-head    { background: #fde4e1; color: #a12a1c; }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      background: #1f2933;
+      color: #e8edf3;
+      flex: 1;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .rendered { padding: 14px 18px; flex: 1; }
+    .info-body { padding: 14px; flex: 1; font-size: 0.9rem; line-height: 1.55; }
+    .info-body p { margin: 0 0 8px; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+    th, td { border: 1px solid #d9dee5; padding: 5px 7px; text-align: left; vertical-align: top; }
+    th { background: #f3f5f8; }
+
+    /* ----- Demo styling ----- */
+    .student-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    @media (max-width: 500px) { .student-list { grid-template-columns: 1fr; } }
+    .card {
+      border: 1px solid #d9dee5;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #f9fbfd;
+    }
+    .card h3 { margin: 6px 0 2px; }
+    .card p { margin: 2px 0 6px; font-size: 0.9rem; }
+    .toggle { display: block; margin-bottom: 12px; font-size: 0.92rem; }
+
+    /* X-ray mode: outline each component in its own colour */
+    .xray [data-c="App"]         { outline: 3px solid #7c4dff; outline-offset: 5px; padding: 8px; }
+    .xray [data-c="StudentCard"] { outline: 3px solid #1a7f45; outline-offset: 2px; }
+    .xray [data-c="Avatar"]      { outline: 3px solid #1556b8; outline-offset: 2px; }
+    .xray [data-c="Badge"]       { outline: 3px solid #e08a00; outline-offset: 2px; }
+
+    .chip {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 1px 8px;
+      border-radius: 5px;
+      color: #fff;
+    }
+    .c-app { background: #7c4dff; }
+    .c-card { background: #1a7f45; }
+    .c-avatar { background: #1556b8; }
+    .c-badge { background: #e08a00; }
+
+    .tree { font-family: Consolas, monospace; font-size: 0.82rem; line-height: 1.7; }
+
+    .reuse-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 12px; }
+    .comment { display: flex; align-items: center; gap: 10px; border: 1px solid #d9dee5; border-radius: 8px; padding: 8px 12px; background: #f9fbfd; }
+    .comment p { margin: 0; }
+    .label-line { font-size: 0.8rem; color: #52606d; margin: 8px 0 4px; }
+
+    .note { color: #52606d; font-size: 0.88rem; margin: 6px 0 0; }
+    .good {
+      background: #e8f6ee;
+      border: 1px solid #9fd4b4;
+      border-left: 5px solid #1a7f45;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    code {
+      background: #e8edf3;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.88em;
+    }
+  </style>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Component Composition</h1>
+    <p class="lead">Build a complex UI from small components that each do one job.</p>
+
+    <!-- ========== 1. The example ========== -->
+    <h2>1. Small pieces, composed together</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>function Avatar({ src, alt }) {
+  return &lt;img src={src} alt={alt}
+    style={{ borderRadius: '50%', width: 48 }} /&gt;;
+}
+
+function Badge({ text, color = '#0891b2' }) {
+  return (
+    &lt;span style={{ background: color, color: '#fff',
+      padding: '2px 8px', borderRadius: 4 }}&gt;
+      {text}
+    &lt;/span&gt;
+  );
+}
+
+function StudentCard({ name, studentId, year, avatarUrl }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;Avatar src={avatarUrl} alt={name} /&gt;
+      &lt;h3&gt;{name}&lt;/h3&gt;
+      &lt;p&gt;ID: {studentId}&lt;/p&gt;
+      &lt;Badge text={`Year ${year}`} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+function App() {
+  return (
+    &lt;div className="student-list"&gt;
+      &lt;StudentCard name="Amir" studentId="202011234"
+        year={3} avatarUrl="/img/amir.jpg" /&gt;
+      &lt;StudentCard name="Zulfiya" studentId="202012345"
+        year={2} avatarUrl="/img/zulfiya.jpg" /&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+      </div>
+
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live, try the X-ray)</small></div>
+        <div class="rendered" id="root1"></div>
+      </div>
+
+      <div class="panel p-info">
+        <div class="panel-head">Component tree <small>(static)</small></div>
+        <div class="info-body">
+          <div class="tree">
+            <span class="chip c-app">App</span><br />
+            ├─ <span class="chip c-card">StudentCard</span> Amir<br />
+            │&nbsp;&nbsp;&nbsp;├─ <span class="chip c-avatar">Avatar</span><br />
+            │&nbsp;&nbsp;&nbsp;└─ <span class="chip c-badge">Badge</span><br />
+            └─ <span class="chip c-card">StudentCard</span> Zulfiya<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;├─ <span class="chip c-avatar">Avatar</span><br />
+            &nbsp;&nbsp;&nbsp;&nbsp;└─ <span class="chip c-badge">Badge</span>
+          </div>
+          <p style="margin-top:12px">Data flows <strong>down</strong> the tree as props: <code>App</code> gives <code>StudentCard</code> a name and year, and <code>StudentCard</code> passes pieces on to <code>Avatar</code> and <code>Badge</code>.</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">The live version adds a <code>data-c</code> attribute to each element, only so the X-ray checkbox can outline it. The avatar images are generated placeholders, because <code>/img/amir.jpg</code> does not exist here.</p>
+
+    <!-- ========== 2. Reuse ========== -->
+    <h2>2. Reuse: the same pieces in other places</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>// Same Badge, different props
+&lt;Badge text="Year 3" /&gt;
+&lt;Badge text="Required" color="#d93025" /&gt;
+&lt;Badge text="Online" color="#1a7f45" /&gt;
+&lt;Badge text="Elective" color="#8a9099" /&gt;
+
+// Same Avatar, in a comment row
+&lt;div className="comment"&gt;
+  &lt;Avatar src={avatarUrl} alt="Amir" /&gt;
+  &lt;p&gt;Great lecture!&lt;/p&gt;
+&lt;/div&gt;</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root2"></div>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">Why it works</div>
+        <div class="info-body">
+          <p><code>Badge</code> and <code>Avatar</code> know nothing about students. They only know how to draw themselves from their props.</p>
+          <p>Fix the Badge style once, and every badge in the app changes.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 3. Splitting ========== -->
+    <h2>3. When to split a component</h2>
+    <div class="row">
+      <div class="panel p-bad">
+        <div class="panel-head">Before: one big component</div>
+<pre>function StudentCard(props) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;img src={props.avatarUrl}
+        alt={props.name}
+        style={{ borderRadius: '50%', width: 48 }} /&gt;
+      &lt;h3&gt;{props.name}&lt;/h3&gt;
+      &lt;p&gt;ID: {props.studentId}&lt;/p&gt;
+      &lt;span style={{ background: '#0891b2',
+        color: '#fff', padding: '2px 8px',
+        borderRadius: 4 }}&gt;
+        Year {props.year}
+      &lt;/span&gt;
+    &lt;/div&gt;
+  );
+}
+// Avatar and badge styling is stuck
+// inside. Can't reuse it elsewhere.</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">After: split by job</div>
+<pre>function StudentCard({ name, studentId,
+                       year, avatarUrl }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;Avatar src={avatarUrl} alt={name} /&gt;
+      &lt;h3&gt;{name}&lt;/h3&gt;
+      &lt;p&gt;ID: {studentId}&lt;/p&gt;
+      &lt;Badge text={`Year ${year}`} /&gt;
+    &lt;/div&gt;
+  );
+}
+// Reads like an outline of the card.
+// Avatar and Badge live on their own.</pre>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">One job each <small>(static)</small></div>
+        <div class="info-body">
+          <table>
+            <tr><th>Component</th><th>Its one job</th></tr>
+            <tr><td><code>Avatar</code></td><td>Draw a round picture</td></tr>
+            <tr><td><code>Badge</code></td><td>Draw a small coloured label</td></tr>
+            <tr><td><code>StudentCard</code></td><td>Arrange one student's info</td></tr>
+            <tr><td><code>App</code></td><td>Lay out the list of cards</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="good">
+      <strong>Single Responsibility Principle:</strong> if you can't describe a component's job in one short sentence, or you find yourself copying the same markup, it is time to split it.
+    </div>
+  </div>
+
+  <script type="text/babel">
+    // Placeholder avatar (an inline SVG with an initial), so no image files are needed
+    function makeAvatar(letter, bg) {
+      const svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96">' +
+        '<rect width="96" height="96" fill="' + bg + '"/>' +
+        '<text x="48" y="64" font-size="48" font-family="Arial" font-weight="700" ' +
+        'text-anchor="middle" fill="#fff">' + letter + '</text></svg>';
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+    const amirImg = makeAvatar('A', '#1556b8');
+    const zulfiyaImg = makeAvatar('Z', '#c2548a');
+
+    // ---------- Small, focused components ----------
+    function Avatar({ src, alt }) {
+      return <img data-c="Avatar" src={src} alt={alt} style={{ borderRadius: '50%', width: 48 }} />;
+    }
+
+    function Badge({ text, color = '#0891b2' }) {
+      return (
+        <span data-c="Badge" style={{ background: color, color: '#fff', padding: '2px 8px', borderRadius: 4 }}>
+          {text}
+        </span>
+      );
+    }
+
+    function StudentCard({ name, studentId, year, avatarUrl }) {
+      return (
+        <div className="card" data-c="StudentCard">
+          <Avatar src={avatarUrl} alt={name} />
+          <h3>{name}</h3>
+          <p>ID: {studentId}</p>
+          <Badge text={`Year ${year}`} />
+        </div>
+      );
+    }
+
+    // ---------- Composed together in App ----------
+    function App() {
+      return (
+        <div className="student-list" data-c="App">
+          <StudentCard name="Amir" studentId="202011234" year={3} avatarUrl={amirImg} />
+          <StudentCard name="Zulfiya" studentId="202012345" year={2} avatarUrl={zulfiyaImg} />
+        </div>
+      );
+    }
+
+    // X-ray wrapper: only draws coloured outlines around each component
+    function XRayDemo() {
+      const [xray, setXray] = React.useState(true);
+      return (
+        <div>
+          <label className="toggle">
+            <input type="checkbox" checked={xray} onChange={e => setXray(e.target.checked)} />{' '}
+            X-ray: outline each component
+          </label>
+          {xray && (
+            <p className="label-line">
+              <span className="chip c-app">App</span>{' '}
+              <span className="chip c-card">StudentCard</span>{' '}
+              <span className="chip c-avatar">Avatar</span>{' '}
+              <span className="chip c-badge">Badge</span>
+            </p>
+          )}
+          <div className={xray ? 'xray' : ''}>
+            <App />
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root1')).render(<XRayDemo />);
+
+    // ---------- 2. Reuse ----------
+    function ReuseDemo() {
+      return (
+        <div>
+          <p className="label-line">The same Badge, four ways:</p>
+          <div className="reuse-line">
+            <Badge text="Year 3" />
+            <Badge text="Required" color="#d93025" />
+            <Badge text="Online" color="#1a7f45" />
+            <Badge text="Elective" color="#8a9099" />
+          </div>
+          <p className="label-line">The same Avatar, in a comment:</p>
+          <div className="comment">
+            <Avatar src={amirImg} alt="Amir" />
+            <p>Great lecture!</p>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root2')).render(<ReuseDemo />);
+  </script>
+</body>
+</html>

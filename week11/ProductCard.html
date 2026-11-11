@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ProductCard</title>
+
+  <style>
+    body {
+      font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+      background: #f3f5f8;
+      margin: 0;
+      padding: 32px 16px;
+      color: #1f2933;
+    }
+    main {
+      max-width: 360px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin: 0 0 20px;
+    }
+    .product-card {
+      background: #fff;
+      border: 1px solid #d9dee5;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+    }
+    .product-card h3 {
+      margin: 0 0 6px;
+    }
+    .product-card p {
+      margin: 4px 0;
+    }
+    .price {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+    .stars {
+      color: #f5a623;
+      letter-spacing: 2px;
+    }
+    .stock {
+      display: inline-block;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+    .in-stock { color: #1a7f45; }
+    .out-of-stock { color: #c0392b; }
+    .product-card.sold-out { opacity: 0.6; }
+  </style>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    function ProductCard({ name, price, rating, inStock }) {
+      // Round to the nearest whole star for the star icons (4.5 -> 5 filled stars)
+      const filled = Math.round(rating);
+      const stars = '★'.repeat(filled) + '☆'.repeat(5 - filled);
+
+      return (
+        <div className={inStock ? 'product-card' : 'product-card sold-out'}>
+          <h3>{name}</h3>
+          <p className="price">{price.toLocaleString('ko-KR')}원</p>
+          <p>
+            <span className="stars">{stars}</span>{' '}
+            {rating} / 5 stars   {/* Bonus 1 */}
+          </p>
+          {/* Bonus 2: handle inStock = false */}
+          <span className={inStock ? 'stock in-stock' : 'stock out-of-stock'}>
+            {inStock ? 'In Stock' : 'Out of Stock'}
+          </span>
+        </div>
+      );
+    }
+
+    function App() {
+      return (
+        <main>
+          <h1>Products</h1>
+          <ProductCard name="Wireless Earbuds" price={89000} rating={4.5} inStock={true} />
+          <ProductCard name="Mechanical Keyboard" price={129000} rating={4} inStock={false} />
+        </main>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

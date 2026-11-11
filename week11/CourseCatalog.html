@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course Catalog</title>
+
+  <style>
+    body {
+      font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+      background: #f3f5f8;
+      margin: 0;
+      padding: 32px 16px;
+      color: #1f2933;
+    }
+    main {
+      max-width: 460px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin: 0 0 20px;
+    }
+    .course-card {
+      background: #fff;
+      border: 1px solid #d9dee5;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+    }
+    .course-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .course-card h3 {
+      margin: 0;
+    }
+    .course-card p {
+      margin: 6px 0 0;
+    }
+    .badge {
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .badge.required { background: #d93025; }  /* red  */
+    .badge.elective { background: #8a9099; }  /* grey */
+  </style>
+
+  <!-- React, ReactDOM, and Babel (translates JSX in the browser) -->
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // 1 + 2. CourseCard: receives title, instructor, credits, required as props
+    function CourseCard({ title, instructor, credits, required }) {
+      return (
+        <div className="course-card">
+          <div className="course-header">
+            <h3>{title}</h3>
+            <span className={required ? 'badge required' : 'badge elective'}>
+              {required ? '필수' : '선택'}
+            </span>
+          </div>
+          <p>교수: {instructor}</p>
+          <p>학점: {credits}학점</p>
+        </div>
+      );
+    }
+
+    const courses = [
+      { id: 1, title: 'Web Programming', instructor: 'Dr. Toshpulatov', credits: 3, required: true },
+      { id: 2, title: 'Database Systems', instructor: 'Dr. Kim', credits: 3, required: true },
+      { id: 3, title: 'Mobile App Dev', instructor: 'Dr. Lee', credits: 2, required: false },
+    ];
+
+    // 3. CourseCatalog: maps over the array and renders a CourseCard for each
+    function CourseCatalog() {
+      return (
+        <main>
+          <h1>Course Catalog</h1>
+          {courses.map(c => (
+            <CourseCard
+              key={c.id}
+              title={c.title}
+              instructor={c.instructor}
+              credits={c.credits}
+              required={c.required}
+            />
+          ))}
+        </main>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<CourseCatalog />);
+  </script>
+</body>
+</html>

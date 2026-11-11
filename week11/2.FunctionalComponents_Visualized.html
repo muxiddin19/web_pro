@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Functional Components Visualized</title>
+
+  <style>
+    body {
+      font-family: "Noto Sans KR", "Segoe UI", sans-serif;
+      background: #f3f5f8;
+      color: #1f2933;
+      margin: 0;
+      padding: 32px 16px 56px;
+    }
+    .page { max-width: 1100px; margin: 0 auto; }
+    h1.title { margin: 0 0 6px; }
+    .lead { margin: 0 0 24px; color: #52606d; }
+    h2 { margin: 38px 0 12px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #d9dee5;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-head { font-weight: 700; font-size: 0.9rem; padding: 10px 14px; border-bottom: 1px solid #d9dee5; }
+    .panel-head small { font-weight: 400; opacity: 0.85; }
+    .p-code .panel-head   { background: #e3f0ff; color: #0b4a9e; }
+    .p-result .panel-head { background: #e1f5e8; color: #1a7f45; }
+    .p-dom .panel-head    { background: #fff2d6; color: #8a5a00; }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      background: #1f2933;
+      color: #e8edf3;
+      flex: 1;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .rendered { padding: 14px 18px; flex: 1; }
+    .rendered h2 { margin: 4px 0; font-size: 1.25rem; }
+    .rendered h3 { margin: 4px 0; }
+    .rendered p { margin: 4px 0; }
+    .rendered > div, .wrapper-box { outline: 2px dashed #9aa5b1; outline-offset: 4px; }
+
+    .case { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+    .case > span { font-family: Consolas, monospace; font-size: 0.85rem; background: #e8edf3; padding: 2px 6px; border-radius: 4px; }
+    .empty-hint { color: #c0392b; font-size: 0.85rem; }
+
+    .warn {
+      background: #fff4e5;
+      border: 1px solid #f0c27a;
+      border-left: 5px solid #e08a00;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    .note { color: #52606d; font-size: 0.88rem; margin: 6px 0 0; }
+    code {
+      background: #e8edf3;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.88em;
+    }
+  </style>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Functional Components</h1>
+    <p class="lead">A functional component is a JavaScript function that returns JSX. Its name must start with a capital letter.</p>
+
+    <!-- ========== 1. Minimal component ========== -->
+    <h2>1. A minimal component, used like an HTML tag</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>// Minimal component: a plain JS function
+function Greeting() {
+  return &lt;h2&gt;Hello, World!&lt;/h2&gt;;
+}
+
+// Arrow function syntax: also valid
+// (use ONE of the two, not both)
+// const Greeting = () =&gt; &lt;h2&gt;Hello, World!&lt;/h2&gt;;
+
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;Greeting /&gt;
+      &lt;Greeting /&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root1"></div>
+      </div>
+      <div class="panel p-dom">
+        <div class="panel-head">HTML the browser gets</div>
+        <pre id="dom1">...</pre>
+      </div>
+    </div>
+    <p class="note">One function, written once, produces two separate headings. Each <code>&lt;Greeting /&gt;</code> calls the function again.</p>
+
+    <!-- ========== 2. Capital letter ========== -->
+    <h2>2. Why the capital letter matters</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>function Demo() {
+  return (
+    &lt;div&gt;
+      &lt;Greeting /&gt;   {/* calls your function */}
+      &lt;greeting /&gt;   {/* NOT your function */}
+    &lt;/div&gt;
+  );
+}</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root2"></div>
+      </div>
+      <div class="panel p-dom">
+        <div class="panel-head">HTML the browser gets</div>
+        <pre id="dom2">...</pre>
+      </div>
+    </div>
+    <div class="warn">
+      <strong>Capital letter matters.</strong> <code>&lt;Greeting /&gt;</code> calls your function. <code>&lt;greeting /&gt;</code> is treated as a built-in tag name. React creates an empty element called <code>&lt;greeting&gt;</code> and prints a warning in the browser console (press F12 to see it). Always capitalize component names.
+    </div>
+
+    <!-- ========== 3. Fragment ========== -->
+    <h2>3. Returning several elements: Fragment vs wrapper div</h2>
+    <p class="note" style="margin-top:0">With a Fragment <code>&lt;&gt;...&lt;/&gt;</code>, no extra element is added to the page.</p>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">With a Fragment</div>
+<pre>function UserCard() {
+  return (
+    &lt;&gt;
+      &lt;h3&gt;Zulfiya Karimova&lt;/h3&gt;
+      &lt;p&gt;Computer Engineering · Year 3&lt;/p&gt;
+    &lt;/&gt;
+  );
+}</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root3"></div>
+      </div>
+      <div class="panel p-dom">
+        <div class="panel-head">HTML the browser gets</div>
+        <pre id="dom3">...</pre>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">With a wrapper div (for comparison)</div>
+<pre>function UserCardDiv() {
+  return (
+    &lt;div&gt;
+      &lt;h3&gt;Zulfiya Karimova&lt;/h3&gt;
+      &lt;p&gt;Computer Engineering · Year 3&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root4"></div>
+      </div>
+      <div class="panel p-dom">
+        <div class="panel-head">HTML the browser gets</div>
+        <pre id="dom4">...</pre>
+      </div>
+    </div>
+    <p class="note">The dashed outline in the second result is the extra <code>&lt;div&gt;</code>. In the first result there is no wrapper: the <code>&lt;h3&gt;</code> and <code>&lt;p&gt;</code> sit directly in the page.</p>
+  </div>
+
+  <script type="text/babel">
+    // ---------- 1. Minimal component ----------
+    function Greeting() {
+      return <h2>Hello, World!</h2>;
+    }
+    // const Greeting = () => <h2>Hello, World!</h2>;   // arrow version (use one, not both)
+
+    function App() {
+      return (
+        <div>
+          <Greeting />
+          <Greeting />
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root1')).render(<App />);
+
+    // ---------- 2. Capital letter ----------
+    function Demo() {
+      return (
+        <div>
+          <div className="case"><span>&lt;Greeting /&gt;</span> <Greeting /></div>
+          <div className="case">
+            <span>&lt;greeting /&gt;</span>
+            <greeting />
+            <em className="empty-hint">nothing is drawn</em>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root2')).render(<Demo />);
+
+    // ---------- 3. Fragment ----------
+    function UserCard() {
+      return (
+        <>
+          <h3>Zulfiya Karimova</h3>
+          <p>Computer Engineering · Year 3</p>
+        </>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root3')).render(<UserCard />);
+
+    function UserCardDiv() {
+      return (
+        <div>
+          <h3>Zulfiya Karimova</h3>
+          <p>Computer Engineering · Year 3</p>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root4')).render(<UserCardDiv />);
+
+    // ---------- Show the real HTML React produced ----------
+    function showDom(rootId, preId) {
+      const html = document.getElementById(rootId).innerHTML.replace(/></g, '>\n<');
+      document.getElementById(preId).textContent = html;
+    }
+    setTimeout(() => {
+      showDom('root1', 'dom1');
+      showDom('root2', 'dom2');
+      showDom('root3', 'dom3');
+      showDom('root4', 'dom4');
+    }, 300);
+  </script>
+</body>
+</html>

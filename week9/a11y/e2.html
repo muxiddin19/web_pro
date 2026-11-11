@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en"><body style="font-family:system-ui;padding:24px;max-width:500px">
+<style>
+  .img-placeholder {
+    width:100%; height:80px; border-radius:8px; display:flex;
+    align-items:center; justify-content:center; font-size:24px;
+    margin-bottom:6px; border:2px dashed #999;
+  }
+  .label { font-size:12px; color:#666; margin-bottom:14px; }
+</style>
+
+<!-- Image 1: informational — describe what's in the photo -->
+<div class="img-placeholder" style="background:#e0eaff">🏫</div>
+<img src="" alt="Gachon University main building, a modern glass structure surrounded by trees" style="display:none">
+<p class="label">Image 1: Campus building photo (informational)</p>
+
+<!-- Image 2: decorative — empty alt, screen readers skip it -->
+<div class="img-placeholder" style="background:#f0fdf4">〰️</div>
+<img src="" alt="" style="display:none">
+<p class="label">Image 2: Decorative wavy divider</p>
+
+<!-- Image 3: linked logo — describe where the link goes -->
+<div class="img-placeholder" style="background:#fef3c7">🏫</div>
+<a href="/"><img src="" alt="Gachon University homepage" style="display:none"></a>
+<p class="label">Image 3: University logo (inside a link to homepage)</p>
+
+<!-- Image 4: chart — give the key data and the trend -->
+<div class="img-placeholder" style="background:#f5f0ff">📊</div>
+<img src="" alt="Bar chart of student enrollment, rising each year: 1,200 in 2024, 1,400 in 2025, and 1,476 in 2026" style="display:none">
+<p class="label">Image 4: Enrollment chart: 2024: 1,200 | 2025: 1,400 | 2026: 1,476 students</p>
+
+<button onclick="checkAlts()" style="
+  background:#1a7f5a;color:white;border:none;padding:10px 20px;
+  border-radius:8px;cursor:pointer;font-size:14px;font-weight:600">
+  Check my alt text
+</button>
+<div id="feedback" style="margin-top:12px;font-size:14px"></div>
+
+<script>
+function checkAlts() {
+  const imgs = document.querySelectorAll('img');
+  const results = [];
+  imgs.forEach((img, i) => {
+    const alt = img.getAttribute('alt');
+    if (alt === null) results.push(`❌ Image ${i+1}: missing alt attribute`);
+    else if (alt === 'image' || alt === 'logo' || alt === 'chart')
+      results.push(`⚠️ Image ${i+1}: alt="${alt}" is too generic`);
+    else if (i === 1 && alt !== '')
+      results.push(`⚠️ Image 2 should have alt="" (decorative)`);
+    else results.push(`✅ Image ${i+1}: alt="${alt}"`);
+  });
+  document.getElementById('feedback').innerHTML = results.join('<br>');
+}
+</script>
+</body></html>

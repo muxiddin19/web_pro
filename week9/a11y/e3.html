@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><body style="font-family:system-ui;padding:24px;max-width:400px">
+<style>
+  label { display:block; font-size:14px; font-weight:600; margin:12px 0 4px; }
+  input { width:100%; padding:8px; border:2px solid #ccc; border-radius:6px; font-size:15px; margin-bottom:4px; box-sizing:border-box; }
+  input[aria-invalid="true"] { border-color:#dc2626; }
+  .error { color:#b91c1c; font-size:13px; }
+  button { padding:8px 16px; border:none; border-radius:6px; cursor:pointer; }
+  .icon-btn { background:#1a7f5a; color:white; width:36px; height:36px; font-size:18px; border-radius:50%; }
+  .submit-btn { background:#1a56db; color:white; padding:10px 24px; font-size:15px; width:100%; margin-top:8px; }
+  a img { display:block; width:80px; }
+</style>
+
+<h2>Sign Up</h2>
+
+<!-- Fix 1: accessible name for icon-only button -->
+<button type="button" class="icon-btn" aria-label="Search">🔍</button>
+
+<!-- Fix 2: real label, connected by for/id -->
+<label for="email-field">Email address</label>
+<input type="email" id="email-field" placeholder="you@example.com"
+       aria-invalid="true" aria-describedby="email-error">
+<!-- Fix 3: text marker, not color alone -->
+<div class="error" id="email-error">
+  <span aria-hidden="true">⚠️</span> Error: Please enter a valid email address.
+</div>
+
+<label for="password-field">Password</label>
+<input type="password" id="password-field"
+       aria-invalid="true" aria-describedby="password-error">
+<div class="error" id="password-error">
+  <span aria-hidden="true">⚠️</span> Error: Password too short. Must be 8+ characters.
+</div>
+
+<button type="submit" class="submit-btn">Create account</button>
+
+<!-- Fix 4: alt describes where the link goes -->
+<a href="/about" style="margin-top:16px; display:inline-block">
+  <img src="" alt="About us" style="background:#e0eaff;width:80px;height:40px;border-radius:4px">
+</a>
+
+</body></html>

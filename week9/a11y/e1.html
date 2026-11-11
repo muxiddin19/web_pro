@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uz">
+<body style="font-family:system-ui;padding:24px">
+<style>
+  .btn {
+    display:inline-block; background:#1a7f5a; color:white;
+    padding:10px 24px; border-radius:8px; cursor:pointer; font-size:15px;
+    font-weight:600; border:none;
+    font-family:inherit; /* <button> shriftni o'zi meros olmaydi */
+  }
+  .btn:focus-visible {
+    outline:3px solid #1a7f5a;
+    outline-offset:3px;
+  }
+  .close-btn {
+    margin-left:16px; background:#dc2626; color:white;
+    border:none; border-radius:50%; width:36px; height:36px;
+    font-size:18px; cursor:pointer;
+  }
+  .close-btn:focus-visible {
+    outline:3px solid #dc2626;
+    outline-offset:3px;
+  }
+</style>
+
+<p>Try pressing Tab then Enter:</p>
+
+<!-- ✅ div → button -->
+<button type="button" class="btn" onclick="alert('Clicked!')">
+  Submit form
+</button>
+
+<!-- ✅ aria-label qo'shildi -->
+<button type="button" class="close-btn" aria-label="Close" onclick="alert('Closed')">
+  ✕
+</button>
+
+<div id="result" style="margin-top:16px;font-size:14px;color:#666"></div>
+
+<script>
+  document.querySelectorAll('button').forEach(el => {
+    el.addEventListener('click', () => {
+      document.getElementById('result').textContent =
+        '✅ Activated! (works by keyboard and mouse)';
+    });
+  });
+</script>
+</body>
+</html>

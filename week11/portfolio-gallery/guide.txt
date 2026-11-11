@@ -1,0 +1,23 @@
+I made a reference solution for the portfolio gallery as **portfolio-gallery.zip**. It contains only the `src/` files and a short README, not a full project, because I can't run `npx` here. I haven't been able to run the app myself, so test it once before handing it out.
+
+**How to use it**
+1. Run `npx create-react-app portfolio-gallery`.
+2. Copy the zip's `src/` folder over the project's `src/` folder.
+3. Run `npm start`.
+4. Students replace the sample data in `src/data/projects.js` with their own deployed Week 9 projects.
+
+**What's inside**
+- **`ProjectCard`** takes `title`, `description`, `tech` (an array), `github` and `demo`. It shows the tech stack as small tags and opens both links in a new tab with `rel="noopener noreferrer"`.
+- **`ProjectList`** maps over an array and renders one `ProjectCard` per project. The sample data has 4 projects, and an empty list shows a "No projects use this technology yet" message.
+- **`FilterBar`** shows one button per technology, with "All" first. The selected button is highlighted and marked with `aria-pressed`.
+- **`App`** holds the one piece of state, `selectedTech`. It builds the button list from the data with `new Set(projects.flatMap(p => p.tech))`, so the buttons never go out of date when students add projects. It filters with `p.tech.includes(selectedTech)`.
+
+**Common mistakes**
+1. Filtering inside `FilterBar`. The state belongs in `App`, so both `FilterBar` and `ProjectList` can use it.
+2. Storing `tech` as a string like `"React, CSS"`, which breaks `.includes()` and `.map()`. It must be an array.
+3. Hard-coding the filter buttons, so a new technology never gets a button.
+4. Forgetting the "All" option, so students can't clear the filter.
+5. Missing `key` props, or using the array index as the key when the list changes.
+6. Leaving the placeholder `your-username` links in the submission.
+
+**One thing to check:** Create React App has been deprecated by the React team. It still works for the assignment, but it is slow and no longer maintained. Vite (`npm create vite@latest portfolio-gallery -- --template react`) is the current recommendation, and the `src/` files work with it unchanged, except you may need to rename component files to `.jsx`. If your course requires CRA, keep it as is.

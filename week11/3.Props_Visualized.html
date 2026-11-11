@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Props Visualized</title>
+
+  <style>
+    body {
+      font-family: "Noto Sans KR", "Segoe UI", sans-serif;
+      background: #f3f5f8;
+      color: #1f2933;
+      margin: 0;
+      padding: 32px 16px 56px;
+    }
+    .page { max-width: 1100px; margin: 0 auto; }
+    h1.title { margin: 0 0 6px; }
+    .lead { margin: 0 0 24px; color: #52606d; }
+    h2 { margin: 38px 0 12px; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #d9dee5;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-head { font-weight: 700; font-size: 0.9rem; padding: 10px 14px; border-bottom: 1px solid #d9dee5; }
+    .panel-head small { font-weight: 400; opacity: 0.85; }
+    .p-code .panel-head   { background: #e3f0ff; color: #0b4a9e; }
+    .p-result .panel-head { background: #e1f5e8; color: #1a7f45; }
+    .p-info .panel-head   { background: #fff2d6; color: #8a5a00; }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      background: #1f2933;
+      color: #e8edf3;
+      flex: 1;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .rendered { padding: 14px 18px; flex: 1; }
+
+    /* Demo components */
+    .card {
+      border: 1px solid #d9dee5;
+      border-left: 5px solid #1556b8;
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin-bottom: 10px;
+      background: #f9fbfd;
+    }
+    .card h3 { margin: 0 0 2px; }
+    .card p { margin: 0; }
+
+    .btn-line { display: flex; align-items: center; gap: 12px; margin: 8px 0; }
+    .btn-line .tag { font-family: Consolas, monospace; font-size: 0.78rem; color: #52606d; min-width: 170px; }
+    .rendered button {
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .rendered button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .panel-demo { border: 2px solid #1f2933; border-radius: 8px; overflow: hidden; }
+    .panel-demo > h2 { margin: 0; padding: 8px 14px; background: #1f2933; color: #fff; font-size: 1.1rem; }
+    .panel-body { padding: 10px 14px; outline: 2px dashed #e08a00; outline-offset: -6px; }
+    .panel-body p { margin: 4px 0; }
+    .panel-body ul { margin: 4px 0; }
+
+    .mutate-msg { margin: 8px 0 0; font-family: Consolas, monospace; font-size: 0.85rem; color: #c0392b; min-height: 1.3em; }
+    .mutate-btn { background: #8a9099; }
+
+    .info-body { padding: 14px; flex: 1; font-size: 0.9rem; line-height: 1.55; }
+    .info-body p { margin: 0 0 8px; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.82rem; }
+    th, td { border: 1px solid #d9dee5; padding: 5px 7px; text-align: left; }
+    th { background: #f3f5f8; }
+
+    .note { color: #52606d; font-size: 0.88rem; margin: 6px 0 0; }
+    .warn {
+      background: #fff4e5;
+      border: 1px solid #f0c27a;
+      border-left: 5px solid #e08a00;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 12px 0;
+    }
+    code {
+      background: #e8edf3;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.88em;
+    }
+  </style>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Props: Passing Data</h1>
+    <p class="lead">Props pass data from a parent component to a child. Inside the child they are read-only.</p>
+
+    <!-- ========== 1. Passing props ========== -->
+    <h2>1. A parent passes props like HTML attributes</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>// Parent passes props
+function App() {
+  return (
+    &lt;div&gt;
+      &lt;StudentCard name="Amir Tashkentov" year={2} /&gt;
+      &lt;StudentCard name="Gulnora Nazarova" year={3} /&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Child: destructured (preferred)
+function StudentCard({ name, year }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;h3&gt;{name}&lt;/h3&gt;
+      &lt;p&gt;Year {year}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Same thing with the props object:
+// function StudentCard(props) {
+//   ... {props.name} ... {props.year} ...
+// }</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root1"></div>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">What each child receives <small>(static)</small></div>
+<pre>// 1st card
+props = {
+  name: "Amir Tashkentov",
+  year: 2
+}
+
+// 2nd card
+props = {
+  name: "Gulnora Nazarova",
+  year: 3
+}</pre>
+      </div>
+    </div>
+    <p class="note">Same function, different props, different output. Note <code>year={2}</code> uses curly braces so it is a number, while <code>name="..."</code> is a string.</p>
+
+    <h2>1b. Props are read-only</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>function MutateDemo(props) {
+  function tryChange() {
+    'use strict';
+    props.name = 'Someone else';  // not allowed
+  }
+  // ...
+}</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Try it <small>(live)</small></div>
+        <div class="rendered" id="root1b"></div>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">Rule</div>
+        <div class="info-body">
+          <p>A child must never change its own props. In development, React freezes the props object, so the assignment above throws an error.</p>
+          <p>If a value needs to change, the parent passes a new value, or the component keeps its own <code>state</code> (next topic).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 2. Default props ========== -->
+    <h2>2. Default values</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>function Button({
+  label = 'Click me',
+  color = 'blue',
+  disabled = false
+}) {
+  return (
+    &lt;button
+      style={{ background: color }}
+      disabled={disabled}
+    &gt;
+      {label}
+    &lt;/button&gt;
+  );
+}
+
+&lt;Button /&gt;
+&lt;Button label="Submit" /&gt;
+&lt;Button label="Delete" color="red" /&gt;</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root2"></div>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">Values each button used <small>(static)</small></div>
+        <div class="info-body">
+          <table>
+            <tr><th>Usage</th><th>label</th><th>color</th></tr>
+            <tr><td><code>&lt;Button /&gt;</code></td><td>Click me <em>(default)</em></td><td>blue <em>(default)</em></td></tr>
+            <tr><td><code>label="Submit"</code></td><td>Submit</td><td>blue <em>(default)</em></td></tr>
+            <tr><td><code>label="Delete" color="red"</code></td><td>Delete</td><td>red</td></tr>
+          </table>
+          <p style="margin-top:10px"><code>disabled</code> stays <code>false</code> in all three.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 3. children ========== -->
+    <h2>3. props.children</h2>
+    <div class="row">
+      <div class="panel p-code">
+        <div class="panel-head">Code</div>
+<pre>function Panel({ title, children }) {
+  return (
+    &lt;div className="panel"&gt;
+      &lt;h2&gt;{title}&lt;/h2&gt;
+      &lt;div className="panel-body"&gt;
+        {children}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}
+
+&lt;Panel title="Week 11"&gt;
+  &lt;p&gt;React session today&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Components&lt;/li&gt;
+    &lt;li&gt;Props&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/Panel&gt;</pre>
+      </div>
+      <div class="panel p-result">
+        <div class="panel-head">Result <small>(live)</small></div>
+        <div class="rendered" id="root3"></div>
+      </div>
+      <div class="panel p-info">
+        <div class="panel-head">What Panel receives <small>(static)</small></div>
+<pre>props = {
+  title: "Week 11",
+  children: [
+    &lt;p&gt;React session today&lt;/p&gt;,
+    &lt;ul&gt;...&lt;/ul&gt;
+  ]
+}</pre>
+      </div>
+    </div>
+    <p class="note">The dashed orange box in the result is where <code>{children}</code> was placed. Everything between <code>&lt;Panel&gt;</code> and <code>&lt;/Panel&gt;</code> ends up there.</p>
+
+    <div class="warn">
+      <strong>Common mistakes:</strong> writing <code>year="2"</code> when you need the number <code>{2}</code>; forgetting the curly braces in <code>{name}</code>; writing <code>{props.name}</code> after destructuring (it is just <code>{name}</code>); and trying to change a prop inside the child.
+    </div>
+  </div>
+
+  <script type="text/babel">
+    // ---------- 1. Passing props ----------
+    function StudentCard({ name, year }) {
+      return (
+        <div className="card">
+          <h3>{name}</h3>
+          <p>Year {year}</p>
+        </div>
+      );
+    }
+
+    function App() {
+      return (
+        <div>
+          <StudentCard name="Amir Tashkentov" year={2} />
+          <StudentCard name="Gulnora Nazarova" year={3} />
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root1')).render(<App />);
+
+    // ---------- 1b. Read-only demo ----------
+    function MutateDemo(props) {
+      const [msg, setMsg] = React.useState('');
+
+      function tryChange() {
+        'use strict';
+        try {
+          props.name = 'Someone else';
+          setMsg('It changed. (React is in production mode, so props are not frozen.)');
+        } catch (e) {
+          setMsg('Error: ' + e.message);
+        }
+      }
+
+      return (
+        <div>
+          <p>props.name is: <strong>{props.name}</strong></p>
+          <button className="mutate-btn" onClick={tryChange}>
+            Try: props.name = 'Someone else'
+          </button>
+          <p className="mutate-msg">{msg}</p>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root1b')).render(<MutateDemo name="Amir Tashkentov" />);
+
+    // ---------- 2. Default props ----------
+    function Button({ label = 'Click me', color = 'blue', disabled = false }) {
+      return (
+        <button style={{ background: color }} disabled={disabled}>
+          {label}
+        </button>
+      );
+    }
+
+    function ButtonDemo() {
+      return (
+        <div>
+          <div className="btn-line"><span className="tag">&lt;Button /&gt;</span> <Button /></div>
+          <div className="btn-line"><span className="tag">label="Submit"</span> <Button label="Submit" /></div>
+          <div className="btn-line"><span className="tag">label="Delete" color="red"</span> <Button label="Delete" color="red" /></div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root2')).render(<ButtonDemo />);
+
+    // ---------- 3. children ----------
+    function Panel({ title, children }) {
+      return (
+        <div className="panel-demo">
+          <h2>{title}</h2>
+          <div className="panel-body">{children}</div>
+        </div>
+      );
+    }
+
+    function PanelDemo() {
+      return (
+        <Panel title="Week 11">
+          <p>React session today</p>
+          <ul><li>Components</li><li>Props</li></ul>
+        </Panel>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root3')).render(<PanelDemo />);
+  </script>
+</body>
+</html>
