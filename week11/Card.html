@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Card</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --fg: #1f2933; --muted: #5f6b7a; --border: #d9dee5;
+    --btn-bg: #2f5d8a; --btn-fg: #ffffff;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --muted: #9aa6b4; --border: #2d3641;
+      --btn-bg: #6fa3d6; --btn-fg: #10151b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --muted: #9aa6b4; --border: #2d3641;
+    --btn-bg: #6fa3d6; --btn-fg: #10151b;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #root { max-width: 24rem; margin: 0 auto; padding: 2rem 1.25rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .card-title { margin: 0; padding: 0.9rem 1.25rem; font-size: 1.1rem; border-bottom: 1px solid var(--border); }
+  .card-body { padding: 1rem 1.25rem; }
+  .card-body p { margin: 0.4rem 0; color: var(--muted); }
+  .card-body button { margin-top: 0.75rem; padding: 0.5rem 1rem; border: 0; border-radius: 8px; background: var(--btn-bg); color: var(--btn-fg); font: inherit; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+  const e = React.createElement;
+
+  // A reusable card wrapper
+  function Card({ title, children }) {
+    return e("div", { className: "card" },
+      e("h3", { className: "card-title" }, title),
+      e("div", { className: "card-body" }, children)
+    );
+  }
+
+  // Use it to wrap anything
+  function App() {
+    return e(Card, { title: "Student Info" },
+      e("p", null, "Name: Park Jisoo"),
+      e("p", null, "Major: Computer Engineering"),
+      e("button", null, "Edit Profile")
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+</script>
+</body>
+</html>
