@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>User Cards</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --fg: #1f2933; --muted: #5f6b7a;
+    --border: #d9dee5; --avatar-bg: #2f5d8a; --avatar-fg: #ffffff;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --muted: #9aa6b4;
+      --border: #2d3641; --avatar-bg: #6fa3d6; --avatar-fg: #10151b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --muted: #9aa6b4;
+    --border: #2d3641; --avatar-bg: #6fa3d6; --avatar-fg: #10151b;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #root { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem; }
+  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; }
+  .avatar { width: 4rem; height: 4rem; border-radius: 50%; margin: 0 auto 0.75rem; display: flex; align-items: center; justify-content: center; background: var(--avatar-bg); color: var(--avatar-fg); font-size: 1.25rem; font-weight: 600; }
+  .card h2 { margin: 0 0 0.25rem; font-size: 1.15rem; }
+  .card p { margin: 0.25rem 0; color: var(--muted); }
+  .card .role { color: var(--fg); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+  const e = React.createElement;
+
+  function UserCard({ name, role }) {
+    const initials = name.split(' ').map(w => w[0]).join('');
+
+    return e("div", { className: "card" },
+      e("div", { className: "avatar" }, initials),
+      e("h2", null, name),
+      e("p", { className: "role" }, role),
+      e("p", null, "Joined: ", new Date().getFullYear())
+    );
+  }
+
+  function App() {
+    const users = [
+      { name: "Ada Lovelace", role: "Mathematician" },
+      { name: "Grace Hopper", role: "Rear Admiral" },
+      { name: "Alan Turing", role: "Computer Scientist" }
+    ];
+    return e("div", { className: "grid" },
+      users.map(u => e(UserCard, { key: u.name, name: u.name, role: u.role }))
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+</script>
+</body>
+</html>
