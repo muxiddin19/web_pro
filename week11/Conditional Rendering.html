@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conditional Rendering</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --fg: #1f2933; --border: #d9dee5;
+    --err-bg: #fdecec; --err-fg: #9b1c1c; --ok-bg: #e6f4ea; --ok-fg: #1e6b34;
+    --btn-bg: #2f5d8a; --btn-fg: #ffffff;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --border: #2d3641;
+      --err-bg: #3a1f22; --err-fg: #f2b8b8; --ok-bg: #1d3325; --ok-fg: #a8dfb8;
+      --btn-bg: #6fa3d6; --btn-fg: #10151b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --border: #2d3641;
+    --err-bg: #3a1f22; --err-fg: #f2b8b8; --ok-bg: #1d3325; --ok-fg: #a8dfb8;
+    --btn-bg: #6fa3d6; --btn-fg: #10151b;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #root { max-width: 28rem; margin: 0 auto; padding: 2rem 1.25rem; }
+  .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.75rem; }
+  .alert-error { background: var(--err-bg); color: var(--err-fg); }
+  .alert-success { background: var(--ok-bg); color: var(--ok-fg); }
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-top: 1rem; }
+  button { padding: 0.5rem 1rem; border: 0; border-radius: 8px; background: var(--btn-bg); color: var(--btn-fg); font: inherit; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+  const e = React.createElement;
+
+  function Alert({ type, message }) {
+    if (!message) return null; // render nothing
+
+    return e("div", { className: "alert alert-" + type },
+      type === 'error' ? 'ERROR:' : 'OK:', " ", message
+    );
+  }
+
+  function Dashboard({ user }) {
+    return e("div", null,
+      user && e("p", null, "Welcome, ", user.name, "!"),
+      !user && e("p", null, "Please log in.")
+    );
+  }
+
+  // Toggle login state so both branches can be seen
+  function App() {
+    const [user, setUser] = React.useState(null);
+
+    return e("div", null,
+      e(Alert, { type: "error", message: user ? "" : "You are not logged in." }),
+      e(Alert, { type: "success", message: user ? "Logged in successfully." : "" }),
+      e("div", { className: "panel" },
+        e(Dashboard, { user }),
+        e("button", { onClick: () => setUser(user ? null : { name: "Park Jisoo" }) },
+          user ? "Log out" : "Log in")
+      )
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+</script>
+</body>
+</html>

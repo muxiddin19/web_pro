@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student List</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --fg: #1f2933; --border: #d9dee5;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --border: #2d3641;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --border: #2d3641;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #root { max-width: 24rem; margin: 0 auto; padding: 2rem 1.25rem; }
+  ul { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  li { padding: 0.8rem 1.25rem; border-bottom: 1px solid var(--border); }
+  li:last-child { border-bottom: 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+  const e = React.createElement;
+
+  const students = [
+    { id: 1, name: 'Lee Jungwoo', grade: 'A'  },
+    { id: 2, name: 'Park Sohee',  grade: 'B+' },
+    { id: 3, name: 'Kim Minho',   grade: 'A-' },
+  ];
+
+  function StudentList() {
+    return e("ul", null,
+      students.map(student =>
+        e("li", { key: student.id }, student.name, " -- ", student.grade)
+      )
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(e(StudentList));
+</script>
+</body>
+</html>

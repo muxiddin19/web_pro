@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Product Card</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --fg: #1f2933; --muted: #5f6b7a; --border: #d9dee5;
+    --star: #d98e04; --ok: #1e6b34; --out: #9b1c1c;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --muted: #9aa6b4; --border: #2d3641;
+      --star: #f0b84a; --ok: #8fd4a4; --out: #f2a0a0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181d; --surface: #1d232b; --fg: #e8edf2; --muted: #9aa6b4; --border: #2d3641;
+    --star: #f0b84a; --ok: #8fd4a4; --out: #f2a0a0;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  #root { max-width: 56rem; margin: 0 auto; padding: 2rem 1.25rem; }
+  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+  .product { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .product h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+  .price { font-size: 1.25rem; font-weight: 600; margin: 0.25rem 0; }
+  .stars { color: var(--star); letter-spacing: 2px; }
+  .rating { color: var(--muted); font-size: 0.9rem; margin: 0.25rem 0; }
+  .stock { font-weight: 600; margin-top: 0.5rem; }
+  .in { color: var(--ok); }
+  .out { color: var(--out); }
+  .product.soldout { opacity: 0.7; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+  const e = React.createElement;
+
+  function ProductCard({ name, price, rating, inStock }) {
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5;
+    const stars = "★".repeat(full) + (half ? "½" : "") + "☆".repeat(5 - full - (half ? 1 : 0));
+
+    return e("div", { className: "product" + (inStock ? "" : " soldout") },
+      e("h3", null, name),
+      e("p", { className: "price" }, price.toLocaleString("ko-KR"), "원"),
+      e("div", { className: "stars", "aria-hidden": "true" }, stars),
+      e("p", { className: "rating" }, rating, " / 5 stars"),
+      e("p", { className: "stock " + (inStock ? "in" : "out") },
+        inStock ? "In Stock" : "Out of Stock")
+    );
+  }
+
+  function App() {
+    return e("div", { className: "grid" },
+      e(ProductCard, { name: "Wireless Earbuds", price: 89000, rating: 4.5, inStock: true }),
+      e(ProductCard, { name: "Mechanical Keyboard", price: 129000, rating: 4, inStock: true }),
+      e(ProductCard, { name: "USB-C Hub", price: 45000, rating: 3.5, inStock: false })
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+</script>
+</body>
+</html>
